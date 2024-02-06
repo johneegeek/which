@@ -1,23 +1,59 @@
 cmake_minimum_required(VERSION 3.24)
 
+list(APPEND CMAKE_MODULE_PATH
+    "${CMAKE_CURRENT_SOURCE_DIR}/cmake"
+) 
+# Don't build from inside the source tree
+include( NoInSourceBuilds )
+
 project(which
     VERSION 4.0.0
     LANGUAGES CXX
 )
-set(CXXOPTS_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 17)
 
 set( PROJECT_ROOT ${CMAKE_SOURCE_DIR} )
 set( PROJECT_SRC_DIR ${PROJECT_ROOT}/src )
+
+option( USE_GOOGLE_TEST
+    "Use Google Test" ON
+)
 
 
 set(main-src 
     src/main.cpp
 )
+set(lib-src
+    src/internal_cmds.cpp
+)
 
-add_executable(which ${main-src})
-
-target_include_directories(which
-    PUBLIC
+include_directories(
         ${PROJECT_SRC_DIR}
         ${PROJECT_SRC_DIR}/include
 )
+
+
+add_library( whichlib STATIC ${lib-src} )
+
+add_executable(which ${main-src})
+
+target_link_libraries(which
+    whichlib
+)
+
+if (USE_GOOGLE_TEST) 
+    include(FetchContent)
+    FetchContent_Declare(
+        googletest
+        GIT_REPOSITORY https://github.com/google/googletest.git
+        GIT_TAG        f8d7d77c06936315286eb55f8de22cd23c188571 # release-1.14
+    )
+    # For Windows: Prevent overriding the parent project's compiler/linker settings
+    set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+    message(STATUS "Setting up Google Test")
+    FetchContent_MakeAvailable(googletest)
+    
+    add_subdirectory(tests)
+    enable_testing()
+endif()
+
