@@ -1,6 +1,6 @@
 .PHONY: configure
 configure:
-	cmake -G "Ninja" -B build
+	cmake -G "Ninja Multi-Config" -B build
 
 .PHONY: build
 build:

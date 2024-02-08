@@ -16,29 +16,36 @@ set( PROJECT_ROOT ${CMAKE_SOURCE_DIR} )
 set( PROJECT_SRC_DIR ${PROJECT_ROOT}/src )
 
 option( USE_GOOGLE_TEST
-    "Use Google Test" ON
+    "Use Google Test" OFF
 )
 
+
+# Get me the boost
+set(Boost_USE_STATIC_LIBS ON)
+find_package(Boost COMPONENTS program_options REQUIRED )
 
 set(main-src 
     src/main.cpp
 )
 set(lib-src
+    src/aliases.cpp
     src/internal_cmds.cpp
+    src/which.cpp
 )
 
 include_directories(
         ${PROJECT_SRC_DIR}
         ${PROJECT_SRC_DIR}/include
+        ${Boost_INCLUDE_DIRS}
 )
 
 
 add_library( whichlib STATIC ${lib-src} )
-
 add_executable(which ${main-src})
 
-target_link_libraries(which
+target_link_libraries(which PUBLIC
     whichlib
+    ${Boost_LIBRARIES}
 )
 
 if (USE_GOOGLE_TEST) 

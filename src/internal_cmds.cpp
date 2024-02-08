@@ -1,6 +1,6 @@
 #include "internal_cmds.h"
 
-#include <algorithm>
+#include <boost/algorithm/string.hpp>
 #include <cstddef>
 #include <cstring>
 #include <set>
@@ -14,9 +14,23 @@ const std::set<std::string> INTERNAL_COMMANDS
        "RENAME", "RD",    "RMDIR", "SET",    "SETLOCAL", "SHIFT",    "START", "TIME",
        "TITLE",  "TYPE",  "VER",   "VERIFY", "VOL"};
 
-bool is_internal_command(const char* command)
+bool is_internal_command(const std::string& command)
 {
     std::string s(command);
-    std::transform(s.begin(), s.end(), s.begin(), ::toupper);
+    boost::algorithm::to_upper(s);
     return INTERNAL_COMMANDS.find(s.c_str()) != INTERNAL_COMMANDS.end();
+}
+
+std::vector<std::string> search_internal_commands(const std::string& command)
+{
+    std::vector<std::string> result;
+
+    std::string message;
+    if (is_internal_command(command)) {
+        std::string s = boost::algorithm::to_upper_copy(command);
+        message       = s + " is an internal Windows command. (CMD.EXE)";
+        result.push_back(message);
+    }
+
+    return result;
 }
