@@ -12,6 +12,7 @@
 #include "aliases.h"
 #include "internal_cmds.h"
 #include "which.h"
+#include "which_version.h"
 
 #include <boost/program_options.hpp>
 #include <boost/range/join.hpp>
@@ -25,7 +26,8 @@ namespace po = boost::program_options;
 
 void show_version()
 {
-    std::cout << "TODO: version info." << std::endl;
+    std::cout << "Version " << WHICH_VERSION << std::endl;
+    std::cout << "John Kiernan, 2024  - Git SHA(" << WHICH_GIT_SHA << ")" << std::endl;
 }
 
 int main(int argc, char* argv[])
