@@ -14,9 +14,22 @@ set(CMAKE_CXX_STANDARD 17)
 
 set( PROJECT_ROOT ${CMAKE_SOURCE_DIR} )
 set( PROJECT_SRC_DIR ${PROJECT_ROOT}/src )
+set( PROJECT_BIN_DIR ${PROJECT_ROOT} )
 
 option( USE_GOOGLE_TEST
     "Use Google Test" OFF
+)
+
+option( PROJECT_USES_GIT
+    "Project is using git" ON
+)
+
+# Configure the version information
+include(BuildStats)
+configure_file(
+    ${PROJECT_SRC_DIR}/include/which_version.h.in
+    ${CMAKE_BINARY_DIR}/which_version.h
+    @ONLY
 )
 
 
@@ -36,6 +49,7 @@ set(lib-src
 include_directories(
         ${PROJECT_SRC_DIR}
         ${PROJECT_SRC_DIR}/include
+        ${CMAKE_BINARY_DIR}
         ${Boost_INCLUDE_DIRS}
 )
 
@@ -47,6 +61,14 @@ target_link_libraries(which PUBLIC
     whichlib
     ${Boost_LIBRARIES}
 )
+
+add_custom_command( TARGET which
+                    POST_BUILD
+                    COMMAND ${CMAKE_COMMAND}
+                    -E copy $<TARGET_FILE:which> ${PROJECT_BIN_DIR} 
+                    COMMENT "Performing POST_BUILD commands"
+)
+
 
 if (USE_GOOGLE_TEST) 
     include(FetchContent)
