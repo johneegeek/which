@@ -9,11 +9,12 @@ build:
 
 .PHONY: configure
 configure:
-	cmake -G "Ninja Multi-Config" -B build
+	cmake -G "Ninja Multi-Config" -B build 
 
 .PHONY: release
 release:
-	cmake --build build --config Release
+	@cmake -G "Ninja Multi-Config" -B build --fresh
+	@cmake --build build --config Release
 
 .PHONY: test
 test:

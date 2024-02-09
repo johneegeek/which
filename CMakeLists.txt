@@ -35,7 +35,7 @@ configure_file(
 
 # Get me the boost
 set(Boost_USE_STATIC_LIBS ON)
-find_package(Boost COMPONENTS program_options REQUIRED )
+find_package(Boost REQUIRED )
 
 set(main-src 
     src/main.cpp
@@ -43,6 +43,7 @@ set(main-src
 set(lib-src
     src/aliases.cpp
     src/internal_cmds.cpp
+    src/progargs.cpp
     src/which.cpp
 )
 

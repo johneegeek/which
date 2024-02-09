@@ -7,14 +7,13 @@
 //    3. PATH SEARCH (/w PATHEXT)
 //
 // TODO: Add -s option.
-// TODO: Add version information
+// TODO: Env options
 // TODO: Document
 #include "aliases.h"
 #include "internal_cmds.h"
+#include "progargs.h"
 #include "which.h"
-#include "which_version.h"
 
-#include <boost/program_options.hpp>
 #include <boost/range/join.hpp>
 #include <filesystem>
 #include <iostream>
@@ -22,74 +21,22 @@
 #include <string>
 #include <vector>
 
-namespace po = boost::program_options;
-
-void show_version()
-{
-    std::cout << "Version " << WHICH_VERSION << std::endl;
-    std::cout << "John Kiernan, 2024  - Git SHA(" << WHICH_GIT_SHA << ")" << std::endl;
-}
-
 int main(int argc, char* argv[])
 {
     int                     return_code = 0;
     std::string             command;
-    po::options_description options("Options");
 
-    // clang-format off
-    options.add_options()
-    ("all,a", "List all matches, not just the first one.")
-    ("show,s", "Show file date/time and size.")
-    ("quiet,q", "Quietly check, exit code 0 if found, otherwise non-zero.")
-    ("help,h", "Prints this help message and exit.")
-    ("version,v", "Prints the version.")
-    ;
-    // clang-format on
-    //
+    auto prog_opts = parse_args(argc, argv);
 
-    po::options_description hidden;
-    hidden.add_options()("command",
-                         boost::program_options::value<std::string>(&command),
-                         "The command to search for.");
+    bool quiet = prog_opts.count("quiet");
+    bool all   = prog_opts.count("all");
+    bool show  = prog_opts.count("show");
 
-    po::positional_options_description positional_options;
-    positional_options.add("command", -1);
-
-    po::options_description all_options;
-    all_options.add(options);
-    all_options.add(hidden);
-
-    po::variables_map vm;
-    try {
-        po::store(po::command_line_parser(argc, argv)
-                      .options(all_options)
-                      .positional(positional_options)
-                      .run(),
-                  vm);
-
-        po::notify(vm);
+    if (prog_opts.count("cmd")) { command = prog_opts["cmd"].as<std::string>(); }
+    else {
+        show_usage();
+        exit(2);
     }
-    catch (boost::program_options::error& e) {
-        std::cerr << e.what() << std::endl;
-        std::cerr << options << std::endl;
-        return 2;
-    }
-
-    if (vm.count("help")) {
-        std::cout << "Usage: which [options] command\n\n";
-        std::cout << options << std::endl;
-        show_version();
-        return 0;
-    }
-
-    if (vm.count("version")) {
-        show_version();
-        return 0;
-    }
-
-    bool quiet = vm.count("quiet");
-    bool all   = vm.count("all");
-    bool show  = vm.count("show");
 
     std::vector<std::string> alias_search  = search_aliases(command);
     std::vector<std::string> internal_cmds = search_internal_commands(command);
