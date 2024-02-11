@@ -30,7 +30,7 @@ int main(int argc, char* argv[])
 
     const bool silent = static_cast<bool>(prog_opts.count("silent"));
     const bool all    = static_cast<bool>(prog_opts.count("all"));
-    const bool show   = static_cast<bool>(prog_opts.count("show"));
+    const bool info   = static_cast<bool>(prog_opts.count("info"));
 
     if (static_cast<bool>(prog_opts.count("cmd"))) {
         command = prog_opts["cmd"].as<std::string>();
@@ -42,7 +42,7 @@ int main(int argc, char* argv[])
 
     std::vector<std::string> alias_search  = search_aliases(command);
     std::vector<std::string> internal_cmds = search_internal_commands(command);
-    std::vector<std::string> main_search   = search_path(command, show);
+    std::vector<std::string> main_search   = search_path(command, info);
     std::vector<std::string> results;
 
     // Combine all the search results int one vector.
