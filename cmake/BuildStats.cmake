@@ -2,7 +2,9 @@ include_guard()
 
 message(STATUS "Collecting build stats...")
 
-string(TIMESTAMP BUILD_TIMESTAMP +%y%j%H)
+if (VERSION_INCLUDE_BUILDID)
+    string(TIMESTAMP BUILD_TIMESTAMP +%y%j%H)
+endif()
 
 string(TIMESTAMP BUILD_DATE "%b %d, %Y")
 

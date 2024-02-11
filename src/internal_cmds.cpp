@@ -1,10 +1,9 @@
 #include "internal_cmds.h"
 
 #include <boost/algorithm/string.hpp>
-#include <cstddef>
-#include <cstring>
 #include <set>
 #include <string>
+#include <vector>
 
 const std::set<std::string> INTERNAL_COMMANDS
     = {"ASSOC",  "BREAK", "CALL",  "CD",     "CHDIR",    "CLS",      "COLOR", "COPY",
@@ -16,9 +15,9 @@ const std::set<std::string> INTERNAL_COMMANDS
 
 bool is_internal_command(const std::string& command)
 {
-    std::string s(command);
-    boost::algorithm::to_upper(s);
-    return INTERNAL_COMMANDS.find(s.c_str()) != INTERNAL_COMMANDS.end();
+    std::string command_str(command);
+    boost::algorithm::to_upper(command_str);
+    return INTERNAL_COMMANDS.find(command_str.c_str()) != INTERNAL_COMMANDS.end();
 }
 
 /**
@@ -35,10 +34,9 @@ std::vector<std::string> search_internal_commands(const std::string& command)
 {
     std::vector<std::string> result;
 
-    std::string message;
     if (is_internal_command(command)) {
-        std::string s = boost::algorithm::to_upper_copy(command);
-        message       = s + " is an internal Windows command. (CMD.EXE)";
+        const std::string cmdstr = boost::algorithm::to_upper_copy(command);
+        std::string message = cmdstr + " is an internal Windows command. (CMD.EXE)";
         result.push_back(message);
     }
 

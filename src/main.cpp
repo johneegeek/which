@@ -15,10 +15,10 @@
 #include "progargs.h"
 #include "which.h"
 
+#include <boost/range.hpp>
 #include <boost/range/join.hpp>
-#include <filesystem>
+#include <cstdlib>
 #include <iostream>
-#include <memory>
 #include <string>
 #include <vector>
 
@@ -29,11 +29,13 @@ int main(int argc, char* argv[])
 
     auto prog_opts = parse_args(argc, argv);
 
-    bool silent = prog_opts.count("silent");
-    bool all   = prog_opts.count("all");
-    bool show  = prog_opts.count("show");
+    const bool silent = static_cast<bool>(prog_opts.count("silent"));
+    const bool all    = static_cast<bool>(prog_opts.count("all"));
+    const bool show   = static_cast<bool>(prog_opts.count("show"));
 
-    if (prog_opts.count("cmd")) { command = prog_opts["cmd"].as<std::string>(); }
+    if (static_cast<bool>(prog_opts.count("cmd"))) {
+        command = prog_opts["cmd"].as<std::string>();
+    }
     else {
         show_usage();
         exit(2);
@@ -52,12 +54,12 @@ int main(int argc, char* argv[])
     }
 
     // Print the first match (unless --silent   )
-    if (results.empty())
-        return_code = 1;
-    else if (!silent)
+    if (results.empty()) { return_code = 1; }
+    else if (!silent) {
         std::cout << results[0] << std::endl;
+    }
 
-    if (silent) return return_code;
+    if (silent) { return return_code; }
 
     // If there are more than one matches, print them all (if --all)
     if ((results.size() > 1) && all) {

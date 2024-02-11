@@ -13,7 +13,7 @@ configure:
 
 .PHONY: release
 release:
-	@cmake -G "Ninja Multi-Config" -B build --fresh
+	@cmake -G "Ninja Multi-Config" -B build -DVERSION_INCLUDE_BUILDID=OFF --fresh
 	@cmake --build build --config Release
 
 .PHONY: test
@@ -22,8 +22,8 @@ test:
 
 .PHONY: check
 check:
-	-clang-tidy -p build src/*
-	-cppcheck --enable=all src
+	-clang-tidy -p build src/*.cpp
+	-cppcheck --enable=all --suppress=missingIncludeSystem -I src/include src/*.cpp
 
 .PHONY: clean
 clean:

@@ -4,8 +4,8 @@
 #include <chrono>
 #include <cmath>
 #include <cstdlib>
+#include <ctime>
 #include <filesystem>
-#include <fstream>
 #include <iomanip>
 #include <iostream>
 #include <sstream>
@@ -81,7 +81,7 @@ struct PrettySize {
         friend std::ostream& operator<<(std::ostream& os, PrettySize pfs)
         {
             int    o{};
-            double mantissa = pfs.size;
+            double mantissa = static_cast<double>(pfs.size);
             for (; mantissa >= 1024.; mantissa /= 1024., ++o)
                 ;
             os << std::ceil(mantissa * 10.) / 10. << "BKMGTPE"[o];
@@ -178,9 +178,9 @@ std::vector<std::string> search_path(const std::string& filename,
 
     std::vector<std::filesystem::path> check_list = files_to_check(filename);
     std::vector<std::filesystem::path> path_dirs  = get_path_dirs();
-    for (const auto& search_path: path_dirs) {
+    for (const auto& _path: path_dirs) {
         for (const auto& check: check_list) {
-            std::filesystem::path findme = search_path / check;
+            std::filesystem::path findme = _path / check;
             if (std::filesystem::exists(findme)) {
                 std::stringstream ss;
                 if (show_info) {

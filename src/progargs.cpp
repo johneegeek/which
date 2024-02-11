@@ -1,6 +1,7 @@
 #include "cxxopts.hpp"
 #include "which_version.h"
 
+#include <cstdlib>
 #include <cstring>
 #include <iostream>
 #include <memory>
@@ -37,7 +38,7 @@ int append_argv(const int argc, char* const* argv, char* new_argv[])
     for (int i = 0; i < argc; i++) { new_argv[new_argc++] = argv[i]; }
 
     char* env_opts = std::getenv("WHICH");
-    if (env_opts == nullptr) return argc;
+    if (env_opts == nullptr) { return argc; }
 
     char* p = std::strtok(env_opts, " ");
     while (p && new_argc < kMaxArgs - 1) {
@@ -59,7 +60,7 @@ cxxopts::ParseResult parse_args(int argc, char* argv[])
 
     // Append the command line arguments with any values that might be in the
     // environment variable %WHICH%
-    int nargc = append_argv(argc, argv, nargv);
+    const int nargc = append_argv(argc, argv, nargv);
 
     std::unique_ptr<cxxopts::Options> allocated_options(
         new cxxopts::Options("which", "Which for Windows\nReturns the pathnames of the "
@@ -98,13 +99,13 @@ cxxopts::ParseResult parse_args(int argc, char* argv[])
         exit(2);
     }
 
-    if (result.count("help")) {
+    if (static_cast<bool>(result.count("help"))) {
         std::cout << options.help() << std::endl;
         show_version();
         exit(0);
     }
 
-    if (result.count("version")) {
+    if (static_cast<bool>(result.count("version"))) {
         show_version();
         exit(0);
     }

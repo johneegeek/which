@@ -24,6 +24,17 @@ option( PROJECT_USES_GIT
     "Project is using git" ON
 )
 
+option( VERSION_INCLUDE_BUILDID
+    "Inlude build id (timestamp) as part of the version number" ON
+)
+
+set (CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
+if (MSVC)
+    add_compile_options("$<$<COMPILE_LANGUAGE:C,CXX>:/W4>")
+    add_compile_definitions(_CRT_SECURE_NO_DEPRECATION _CRT_SECURE_NO_WARNINGS)
+endif()
+
 # Configure the version information
 include(BuildStats)
 configure_file(
