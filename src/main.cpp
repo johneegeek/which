@@ -9,7 +9,6 @@
 //    2. INTERNAL COMMANDS
 //    3. PATH SEARCH (/w PATHEXT)
 //
-// TODO: Check and tidy
 #include "aliases.h"
 #include "internal_cmds.h"
 #include "progargs.h"
