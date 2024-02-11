@@ -1,4 +1,3 @@
-
 #include <array>
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/classification.hpp>
@@ -11,6 +10,7 @@
 #include <string>
 #include <vector>
 
+// Helper function to execute a command and return the output.
 std::string exec(const char* cmd)
 {
     std::array<char, 128>                     buffer;
@@ -23,6 +23,12 @@ std::string exec(const char* cmd)
     return result;
 }
 
+/**
+ * @brief Search aliases (DOSKEY) for the given command.
+ *
+ * @param command Name of the command to search for.
+ * @return std::vector<std::string> List of all matches in the aliases list
+ */
 std::vector<std::string> search_aliases(const std::string& command)
 {
     std::vector<std::string> result;

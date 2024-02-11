@@ -50,6 +50,9 @@ int append_argv(const int argc, char* const* argv, char* new_argv[])
     return new_argc;
 }
 
+// Parse the command line arguments using CXXOPTS
+// https://github.com/jarro2783/cxxopts
+//
 cxxopts::ParseResult parse_args(int argc, char* argv[])
 {
     char* nargv[kMaxArgs];

@@ -1,13 +1,14 @@
+// Windows version of the WHICH command.
+// Searches aliases (DOSKEY), internal commands (CMD.EXE) and the search path.
+//
 // Windows Search Sequence:
 // https://learn.microsoft.com/en-us/previous-versions//cc723564(v=technet.10)#command-search-sequence
 //
-// Windows OOP?:
+// Windows OOP:
 //    1. DOSKEY (aliases)
 //    2. INTERNAL COMMANDS
 //    3. PATH SEARCH (/w PATHEXT)
 //
-// TODO: Add -s option.
-// TODO: Document
 // TODO: Check and tidy
 #include "aliases.h"
 #include "internal_cmds.h"
