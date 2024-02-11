@@ -10,8 +10,10 @@ enum { kMaxArgs = 32 }; // Maximum number of arguments. Way more than we need.
 
 void show_version()
 {
-    std::cout << "Version " << WHICH_VERSION << std::endl;
-    std::cout << "John Kiernan, 2024  - Git SHA(" << WHICH_GIT_SHA << ")" << std::endl;
+    std::cout << "Which (" << WHICH_VERSION << ") for Windows. ";
+    std::cout << "John Kiernan, 2024" << std::endl;
+    std::cout << "Built on " << BUILD_DATE << "  (git sha: " << WHICH_GIT_SHA << ") ";
+    std::cout << "[" << COMPILER_INFO << "]" << std::endl;
 }
 
 void show_usage()
@@ -50,12 +52,20 @@ int append_argv(const int argc, char* const* argv, char* new_argv[])
 
 cxxopts::ParseResult parse_args(int argc, char* argv[])
 {
+    char* nargv[kMaxArgs];
+
+    // Append the command line arguments with any values that might be in the
+    // environment variable %WHICH%
+    int nargc = append_argv(argc, argv, nargv);
+
     std::unique_ptr<cxxopts::Options> allocated_options(
         new cxxopts::Options("which", "Which for Windows\nReturns the pathnames of the "
                                       "file(s) (or links) which would be "
                                       "executed in the current environment.\n"));
 
     auto& options = *allocated_options;
+
+    cxxopts::ParseResult result;
 
     try {
         // clang-format off
@@ -66,8 +76,8 @@ cxxopts::ParseResult parse_args(int argc, char* argv[])
             .set_width(80)
             .add_options()
             ("a, all", "List all matches, not just the first.")
-            ("s, show", "Show file date/time and size.")
-            ("q, quiet", "Quietly check, exit code is 0 if found, otherwise non-zero.")
+            ("s, silent", "Quietly check, exit code is 0 if found, otherwise non-zero.")
+            ("z, show", "Show file date/time and size.")
             ("h, help", "Show this help message and exit.")
             ("v, version","Show version information.")
             ("cmd","Command to locate.", cxxopts::value<std::string>())
@@ -75,19 +85,15 @@ cxxopts::ParseResult parse_args(int argc, char* argv[])
         // clang-format on
 
         options.parse_positional({"cmd"});
+
+        result = options.parse(nargc, nargv);
     }
+
     catch (const cxxopts::exceptions::exception& e) {
         std::cerr << "Error parsing options: " << e.what() << std::endl;
         std::cerr << "Try --help for more information." << std::endl;
         exit(2);
     }
-
-    char* nargv[kMaxArgs];
-
-    int nargc = append_argv(argc, argv, nargv);
-
-    // Parse the command line arguments and environment arguments.
-    auto result = options.parse(nargc, nargv);
 
     if (result.count("help")) {
         std::cout << options.help() << std::endl;

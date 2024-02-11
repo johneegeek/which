@@ -7,8 +7,8 @@
 //    3. PATH SEARCH (/w PATHEXT)
 //
 // TODO: Add -s option.
-// TODO: Env options
 // TODO: Document
+// TODO: Check and tidy
 #include "aliases.h"
 #include "internal_cmds.h"
 #include "progargs.h"
@@ -28,7 +28,7 @@ int main(int argc, char* argv[])
 
     auto prog_opts = parse_args(argc, argv);
 
-    bool quiet = prog_opts.count("quiet");
+    bool silent = prog_opts.count("silent");
     bool all   = prog_opts.count("all");
     bool show  = prog_opts.count("show");
 
@@ -51,10 +51,10 @@ int main(int argc, char* argv[])
 
     if (results.empty())
         return_code = 1;
-    else if (!quiet)
+    else if (!silent)
         std::cout << results[0] << std::endl;
 
-    if (quiet) return return_code;
+    if (silent) return return_code;
 
     if ((results.size() > 1) && all) {
         // std::cout << "\n(Also found)\n------------" << std::endl;
