@@ -12,11 +12,11 @@
 #include <string>
 #include <vector>
 
-struct HumanReadable {
+struct PrettySize {
         std::uintmax_t size{};
 
     private:
-        friend std::ostream& operator<<(std::ostream& os, HumanReadable hr)
+        friend std::ostream& operator<<(std::ostream& os, PrettySize hr)
         {
             int    o{};
             double mantissa = hr.size;
@@ -34,6 +34,19 @@ template<typename TP> std::time_t to_time_t(TP tp)
                                                         + system_clock::now());
     return system_clock::to_time_t(sctp);
 }
+
+struct PrettyDateTime {
+        std::filesystem::file_time_type ftime{};
+
+    private:
+        friend std::ostream& operator<<(std::ostream& os, PrettyDateTime pdt)
+        {
+            std::time_t ttime = to_time_t(pdt.ftime);
+            std::tm*    gmt   = std::gmtime(&ttime);
+            os << std::put_time(gmt, "%Y-%m-%d %H:%M:%S");
+            return os;
+        }
+};
 
 std::vector<std::filesystem::path> get_path_dirs()
 {
@@ -100,11 +113,9 @@ std::vector<std::string> search_path(const std::string& filename,
             if (std::filesystem::exists(findme)) {
                 std::stringstream ss;
                 if (with_size) {
-                    auto        ftime = std::filesystem::last_write_time(findme);
-                    std::time_t ttime = to_time_t(ftime);
-                    std::tm*    gmt   = std::gmtime(&ttime);
-                    ss << std::put_time(gmt, "%Y-%m-%d %H:%M:%S") << "  "
-                       << HumanReadable{std::filesystem::file_size(findme)} << " \t ";
+                    ss << PrettyDateTime{std::filesystem::last_write_time(findme)}
+                       << "  " << PrettySize{std::filesystem::file_size(findme)}
+                       << " \t ";
                 }
                 ss << findme.make_preferred().string();
                 found_matches.push_back(ss.str());
