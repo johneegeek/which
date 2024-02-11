@@ -44,12 +44,14 @@ int main(int argc, char* argv[])
     std::vector<std::string> main_search   = search_path(command, show);
     std::vector<std::string> results;
 
+    // Combine all the search results int one vector.
     auto range1     = boost::join(alias_search, internal_cmds);
     auto full_range = boost::join(range1, main_search);
     for (auto it = boost::begin(full_range); it != boost::end(full_range); ++it) {
         results.push_back(*it);
     }
 
+    // Print the first match (unless --silent   )
     if (results.empty())
         return_code = 1;
     else if (!silent)
@@ -57,6 +59,7 @@ int main(int argc, char* argv[])
 
     if (silent) return return_code;
 
+    // If there are more than one matches, print them all (if --all)
     if ((results.size() > 1) && all) {
         // std::cout << "\n(Also found)\n------------" << std::endl;
         for (int i = 1; i < results.size(); ++i) {
