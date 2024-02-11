@@ -10,7 +10,7 @@ enum { kMaxArgs = 32 }; // Maximum number of arguments. Way more than we need.
 
 void show_version()
 {
-    std::cout << "Which (" << WHICH_VERSION << ") for Windows. ";
+    std::cout << "which (" << WHICH_VERSION << ") for Windows. ";
     std::cout << "John Kiernan, 2024" << std::endl;
     std::cout << "Built on " << BUILD_DATE << "  (git sha: " << WHICH_GIT_SHA << ") ";
     std::cout << "[" << COMPILER_INFO << "]" << std::endl;

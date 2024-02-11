@@ -40,7 +40,7 @@ int main(int argc, char* argv[])
 
     std::vector<std::string> alias_search  = search_aliases(command);
     std::vector<std::string> internal_cmds = search_internal_commands(command);
-    std::vector<std::string> main_search   = search_path(command);
+    std::vector<std::string> main_search   = search_path(command, show);
     std::vector<std::string> results;
 
     auto range1     = boost::join(alias_search, internal_cmds);

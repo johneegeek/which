@@ -4,7 +4,7 @@
 #include <filesystem>
 #include <vector>
 
-std::vector<std::string> search_path(const std::string& filename);
+std::vector<std::string> search_path(const std::string& filename, bool with_size);
 
 std::vector<std::filesystem::path> files_to_check(const std::string& filename);
 
