@@ -79,10 +79,10 @@ cxxopts::ParseResult parse_args(int argc, char* argv[])
         options
             .set_width(80)
             .add_options()
-            ("a, all", "List all matches, not just the first.")
-            ("s, silent", "Quietly check, exit code is 0 if found, otherwise non-zero.")
-            ("i, info", "Show file infomation: date/time and size.")
             ("h, help", "Show this help message and exit.")
+            ("a, all", "List all matches, not just the first.")
+            ("i, info", "Show file infomation: date/time and size.")
+            ("s, silent", "Quietly check, exit code is 0 if found, otherwise non-zero.")
             ("v, version","Show version information.")
             ("cmd","Command to locate.", cxxopts::value<std::string>())
             ;
