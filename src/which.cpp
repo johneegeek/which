@@ -54,8 +54,8 @@ struct PrettyDateTime {
         friend std::ostream& operator<<(std::ostream& os, PrettyDateTime pdt)
         {
             std::time_t ttime = to_time_t(pdt.ftime);
-            std::tm*    gmt   = std::gmtime(&ttime);
-            os << std::put_time(gmt, "%Y-%m-%d %H:%M:%S");
+            std::tm*    localt = std::localtime(&ttime);
+            os << std::put_time(localt, "%m/%d/%Y %I:%M:%S %p");
             return os;
         }
 };
@@ -181,12 +181,15 @@ std::vector<std::string> search_path(const std::string& filename,
     for (const auto& _path: path_dirs) {
         for (const auto& check: check_list) {
             std::filesystem::path findme = _path / check;
-            if (std::filesystem::exists(findme)) {
+            std::error_code       ec; // Using noexcept versions but ignoring the ec.
+            std::filesystem::file_status fstatus = std::filesystem::status(findme, ec);
+            if (std::filesystem::is_regular_file(fstatus)
+                || std::filesystem::is_symlink(fstatus)) {
                 std::stringstream ss;
                 if (show_info) {
-                    ss << PrettyDateTime{std::filesystem::last_write_time(findme)}
-                       << "  " << PrettySize{std::filesystem::file_size(findme)}
-                       << " \t ";
+                    ss << PrettyDateTime{std::filesystem::last_write_time(findme, ec)}
+                       << " " << PrettySize{std::filesystem::file_size(findme, ec)}
+                       << "\t ";
                 }
                 ss << findme.make_preferred().string();
                 found_matches.push_back(ss.str());

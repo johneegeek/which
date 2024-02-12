@@ -40,16 +40,23 @@ int main(int argc, char* argv[])
         exit(2);
     }
 
-    std::vector<std::string> alias_search  = search_aliases(command);
-    std::vector<std::string> internal_cmds = search_internal_commands(command);
-    std::vector<std::string> main_search   = search_path(command, info);
     std::vector<std::string> results;
 
-    // Combine all the search results int one vector.
-    auto range1     = boost::join(alias_search, internal_cmds);
-    auto full_range = boost::join(range1, main_search);
-    for (auto it = boost::begin(full_range); it != boost::end(full_range); ++it) {
-        results.push_back(*it);
+    try {
+        std::vector<std::string> alias_search  = search_aliases(command);
+        std::vector<std::string> internal_cmds = search_internal_commands(command);
+        std::vector<std::string> main_search   = search_path(command, info);
+
+        // Combine all the search results int one vector.
+        auto range1     = boost::join(alias_search, internal_cmds);
+        auto full_range = boost::join(range1, main_search);
+        for (auto it = boost::begin(full_range); it != boost::end(full_range); ++it) {
+            results.push_back(*it);
+        }
+    }
+    catch (const std::exception& e) {
+        std::cerr << e.what() << std::endl;
+        return_code = 1;
     }
 
     // Print the first match (unless --silent   )
