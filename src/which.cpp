@@ -183,13 +183,24 @@ std::vector<std::string> search_path(const std::string& filename,
             std::filesystem::path findme = _path / check;
             std::error_code       ec; // Using noexcept versions but ignoring the ec.
             std::filesystem::file_status fstatus = std::filesystem::status(findme, ec);
+            std::stringstream            ss;
             if (std::filesystem::is_regular_file(fstatus)
                 || std::filesystem::is_symlink(fstatus)) {
-                std::stringstream ss;
                 if (show_info) {
                     ss << PrettyDateTime{std::filesystem::last_write_time(findme, ec)}
                        << " " << PrettySize{std::filesystem::file_size(findme, ec)}
                        << "\t ";
+                }
+                ss << findme.make_preferred().string();
+                found_matches.push_back(ss.str());
+            }
+            else if (fstatus.type() == std::filesystem::file_type::none) {
+                // This is the dubious case where it's a weird Microsoft link to an
+                // executable in the WinApps dir. We can't read the time or size
+                // properly so we will show it a bit different.
+                if (show_info) { ss << "(Windows App Execution Alias)\t\t "; }
+                else {
+                    ss << "@";
                 }
                 ss << findme.make_preferred().string();
                 found_matches.push_back(ss.str());
