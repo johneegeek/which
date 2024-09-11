@@ -70,7 +70,7 @@ int main(int argc, char* argv[])
     // If there are more than one matches, print them all (if --all)
     if ((results.size() > 1) && all) {
         // std::cout << "\n(Also found)\n------------" << std::endl;
-        for (int i = 1; i < results.size(); ++i) {
+        for (size_t i = 1; i < results.size(); ++i) {
             std::cout << results[i] << std::endl;
         }
         return return_code;
