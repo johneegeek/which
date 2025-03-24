@@ -6,7 +6,7 @@ Spending a good portion of my time living in the command line, I found in Window
 'which' is not recognized as an internal or external command, operable program or batch file.
 ```
 
-One day, I sighed and said. "Fine, I make one"
+One day, I sighed and said. "Fine, I'll make one"
 
 It's modeled of the Linux and MacOS shell command, and is only sparsly documented as it was kind of quick and dirty.
 
