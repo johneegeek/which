@@ -1,9 +1,17 @@
-#include "internal_cmds.h"
+/******************************************************************************
+ * Copyright (c) 2018-2025 John Kiernan
+ *
+ * `Which` is licensed under MIT license,
+ *  see https://opensource.org/licenses/MIT
+ ******************************************************************************/
 
 #include <boost/algorithm/string.hpp>
 #include <set>
 #include <string>
 #include <vector>
+
+#include "internal_cmds.h"
+#include "powershell.h"
 
 const std::set<std::string> INTERNAL_COMMANDS
     = {"ASSOC",  "BREAK", "CALL",  "CD",     "CHDIR",    "CLS",      "COLOR", "COPY",
@@ -33,6 +41,12 @@ bool is_internal_command(const std::string& command)
 std::vector<std::string> search_internal_commands(const std::string& command)
 {
     std::vector<std::string> result;
+
+    if (is_powershell()) {
+        std::string matched = powershell_cmd_match(command);
+        if (!matched.empty()) { result.push_back(matched); }
+        return result;
+    }
 
     if (is_internal_command(command)) {
         const std::string cmdstr = boost::algorithm::to_upper_copy(command);

@@ -1,4 +1,12 @@
+/******************************************************************************
+ * Copyright (c) 2018-2025 John Kiernan
+ *
+ * `Which` is licensed under MIT license,
+ *  see https://opensource.org/licenses/MIT
+ ******************************************************************************/
+
 #include "cxxopts.hpp"
+#include "powershell.h"
 #include "which_version.h"
 
 #include <cstdlib>
@@ -13,6 +21,7 @@ void show_version()
 {
     std::cout << "which (" << WHICH_VERSION << ") for Windows. ";
     std::cout << "John Kiernan, 2024" << std::endl;
+    if (is_powershell()) { std::cout << "Running under PowerShell" << std::endl; }
     std::cout << "Built on " << BUILD_DATE << "  (git sha: " << WHICH_GIT_SHA << ") ";
     std::cout << "[" << COMPILER_INFO << "]" << std::endl;
 }

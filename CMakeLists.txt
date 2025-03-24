@@ -7,7 +7,7 @@ list(APPEND CMAKE_MODULE_PATH
 include( NoInSourceBuilds )
 
 project(which
-    VERSION 4.0.2
+    VERSION 4.1.0
     LANGUAGES CXX
 )
 set(CMAKE_CXX_STANDARD 17)
@@ -55,7 +55,9 @@ set(lib-src
     src/aliases.cpp
     src/internal_cmds.cpp
     src/progargs.cpp
+    src/shell.cpp
     src/which.cpp
+    src/powershell.cpp
 )
 
 include_directories(

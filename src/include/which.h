@@ -1,3 +1,10 @@
+/******************************************************************************
+ * Copyright (c) 2018-2025 John Kiernan
+ *
+ * `Which` is licensed under MIT license,
+ *  see https://opensource.org/licenses/MIT
+ ******************************************************************************/
+
 #ifndef WHICH_WHICH_H_
 #define WHICH_WHICH_H_
 

@@ -1,3 +1,10 @@
+/******************************************************************************
+ * Copyright (c) 2018-2025 John Kiernan
+ *
+ * `Which` is licensed under MIT license,
+ *  see https://opensource.org/licenses/MIT
+ ******************************************************************************/
+
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/classification.hpp>
 #include <boost/algorithm/string/split.hpp>
@@ -11,6 +18,8 @@
 #include <sstream>
 #include <string>
 #include <vector>
+
+#include "powershell.h"
 
 /**
  * @brief Convert a time point to a time_t value
@@ -102,7 +111,8 @@ std::vector<std::filesystem::path> get_path_dirs()
     std::vector<std::filesystem::path> path_dirs;
 
     // Make sure we check the current directory
-    path_dirs.push_back("./");
+    // In powershell the local directory is NOT searched. Don't know why.
+    if (!is_powershell()) { path_dirs.push_back("./"); }
 
     // Get the PATH from the environment
     const char* path = std::getenv("PATH");

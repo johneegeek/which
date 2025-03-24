@@ -1,5 +1,8 @@
 // Windows version of the WHICH command.
+// John Kiernan, 2018-2025
+//
 // Searches aliases (DOSKEY), internal commands (CMD.EXE) and the search path.
+// On Powershell, it will search known CMDLets as well.
 //
 // Windows Search Sequence:
 // https://learn.microsoft.com/en-us/previous-versions//cc723564(v=technet.10)#command-search-sequence
@@ -8,6 +11,8 @@
 //    1. DOSKEY (aliases)
 //    2. INTERNAL COMMANDS
 //    3. PATH SEARCH (/w PATHEXT)
+//
+// License: MIT License (https://opensource.org/licenses/MIT)
 //
 #include "aliases.h"
 #include "internal_cmds.h"

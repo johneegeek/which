@@ -5,12 +5,15 @@
  *  see https://opensource.org/licenses/MIT
  ******************************************************************************/
 
-#ifndef WHICH_ALIASES_H_
-#define WHICH_ALIASES_H_
+#ifndef POWERSHELL_H_
+#define POWERSHELL_H_
 
 #include <string>
-#include <vector>
+#include <windows.h>
+#include <tlhelp32.h> // This must be included after windows.h :(
 
-extern std::vector<std::string> search_aliases(const std::string& command);
+extern bool is_powershell();
 
-#endif /* WHICH_ALIASES_H_ */
+extern std::string powershell_cmd_match(const std::string& command);
+
+#endif
