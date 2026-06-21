@@ -21,16 +21,13 @@ jobs:
 
       - name: Install Boost
         run: |
-          $Url = "https://sourceforge.net/projects/boost/files/boost-binaries/1.84.0/boost_1_84_0-msvc-14.3-64.exe"
-          $BoostInstaller = "$env:TEMP\boost-installer.exe"
-          Invoke-WebRequest -Uri $Url -OutFile $BoostInstaller
-          Start-Process -Wait -FilePath $BoostInstaller -ArgumentList "/SILENT","/SP-","/SUPPRESSMSGBOXES","/DIR=C:\boost"
-          echo "BOOST_ROOT=C:\boost" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          vcpkg install boost-algorithm boost-filesystem boost-range
+          echo "CMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
         shell: pwsh
 
       - name: Configure CMake
         run: |
-          cmake -G "Ninja Multi-Config" -B build -DVERSION_INCLUDE_BUILDID=OFF --fresh
+          cmake -G "Ninja Multi-Config" -B build -DVERSION_INCLUDE_BUILDID=OFF -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake --fresh
         shell: cmd
         env:
           CC: cl
