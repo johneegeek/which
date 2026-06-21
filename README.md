@@ -12,6 +12,19 @@ It's modeled of the Linux and MacOS shell command, and is only sparsly documente
 
 Feel free to use if you like.
 
+## Table of Contents
+
+- [What is `which`?](#what-is-which)
+- [Usage](#usage)
+  - [Basic Usage](#basic-usage)
+  - [Command-Line Options](#command-line-options)
+  - [Examples](#examples)
+  - [Environment Variable](#environment-variable)
+- [Binaries](#binaries)
+  - [Installation](#installation)
+- [Building from Source](#building-from-source)
+  - [Quick Requirements](#quick-requirements)
+
 ## What is `which`?
 
 `which` locates executables in your Windows environment by searching through the same sequence that Windows uses when you type a command:
