@@ -2,13 +2,12 @@
 Checks:          'clang-diagnostic-*,clang-analyzer-*,cppcoreguidelines-*,bugprone-*,readability-*,misc-*,modernize-*,-modernize-use-trailing-return-type,-cppcoreguidelines-virtual-class-destructor'
 WarningsAsErrors: true
 HeaderFilterRegex: ''
-AnalyzeTemporaryDtors: false
 CheckOptions:
-  - key:             cert-dcl16-c.NewSuffixes
+  - key:             readability-uppercase-literal-suffix.NewSuffixes
     value:           'L;LL;LU;LLU'
-  - key:             cert-oop54-cpp.WarnOnlyIfThisHasSuspiciousField
+  - key:             bugprone-unhandled-self-assignment.WarnOnlyIfThisHasSuspiciousField
     value:           '0'
-  - key:             cppcoreguidelines-explicit-virtual-functions.IgnoreDestructors
+  - key:             modernize-use-override.IgnoreDestructors
     value:           '1'
   - key:             cppcoreguidelines-non-private-member-variables-in-classes.IgnoreClassesWithAllMemberVariablesBeingPublic
     value:           '1'
@@ -33,4 +32,3 @@ CheckOptions:
   - key:             modernize-use-nullptr.NullMacros
     value:           'NULL'
 ...
-

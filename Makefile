@@ -22,8 +22,9 @@ test:
 
 .PHONY: check
 check:
-	-clang-tidy -p build src/*.cpp
-	-cppcheck --enable=all --suppress=missingIncludeSystem -I src/include src/*.cpp
+	-clang-tidy -p build src/* 
+	-cppcheck --enable=all --suppress=missingIncludeSystem --suppress=*:cxxopts* -I src/include src/*.cpp
+	-lizard --modified --exclude "*/cxxopts.hpp" src
 
 .PHONY: clean
 clean:
