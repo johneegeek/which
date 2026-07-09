@@ -34,6 +34,11 @@ option( VERSION_INCLUDE_BUILDID
 
 set (CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
+# Just incase the VC++ runtime is not installed, we'll 
+# statically link it. It will make the exe a bit bigger, but
+# guaranteed to work.
+set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+
 add_compile_definitions(_CRT_SECURE_NO_DEPRECATION _CRT_SECURE_NO_WARNINGS)
 if (MSVC)
     add_compile_options("$<$<COMPILE_LANGUAGE:C,CXX>:/W4>")
