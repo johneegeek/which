@@ -5,11 +5,13 @@
  *  see https://opensource.org/licenses/MIT
  ******************************************************************************/
 
-#include <boost/algorithm/string.hpp>
+#include <boost/algorithm/string/case_conv.hpp>
 #include <boost/algorithm/string/classification.hpp>
 #include <boost/algorithm/string/split.hpp>
+#include <array>
 #include <chrono>
 #include <cmath>
+#include <cstdint>
 #include <cstdlib>
 #include <ctime>
 #include <filesystem>
@@ -17,86 +19,101 @@
 #include <iostream>
 #include <sstream>
 #include <string>
+#include <system_error>
 #include <vector>
 
 #include "powershell.h"
+#include "which.h"
 
-/**
- * @brief Convert a time point to a time_t value
- *
- * This function converts a time point to a time_t value by casting the
- * time point to a system_clock::duration and adding the current system time
- * to it. The result is then cast back to a time_t value.
- *
- * Use this to convert a std::filesystem::file_time_type to a time_t value.
- *
- * @tparam TP The type of time point to convert
- * @param tp The time point to convert
- * @return time_t The converted time_t value
- */
-template<typename TP> std::time_t to_time_t(TP tp)
-{
-    using namespace std::chrono;
-    auto sctp = time_point_cast<system_clock::duration>(tp - TP::clock::now()
-                                                        + system_clock::now());
-    return system_clock::to_time_t(sctp);
-}
+namespace {
 
-/**
- * @brief A struct to pretty print a date time
- *
- * This struct is used to pretty print a date time in a human readable format.
- */
-struct PrettyDateTime {
-        std::filesystem::file_time_type ftime{};
+    /**
+     * @brief Convert a time point to a time_t value
+     *
+     * This function converts a time point to a time_t value by casting the
+     * time point to a system_clock::duration and adding the current system time
+     * to it. The result is then cast back to a time_t value.
+     *
+     * Use this to convert a std::filesystem::file_time_type to a time_t value.
+     *
+     * @tparam TP The type of time point to convert
+     * @param tp The time point to convert
+     * @return time_t The converted time_t value
+     */
+    template<typename TP> std::time_t to_time_t(TP tp)
+    {
+        using namespace std::chrono;
+        auto sctp = time_point_cast<system_clock::duration>(tp - TP::clock::now()
+                                                            + system_clock::now());
+        return system_clock::to_time_t(sctp);
+    }
 
-    private:
-        /**
-         * @brief output stream operator
-         *
-         * This function is used to output the date time in a human readable format.
-         *
-         * @param os the output stream
-         * @param pdt the pretty date time to output
-         * @return std::ostream& the output stream
-         */
-        friend std::ostream& operator<<(std::ostream& os, PrettyDateTime pdt)
-        {
-            std::time_t ttime = to_time_t(pdt.ftime);
-            std::tm*    localt = std::localtime(&ttime);
-            os << std::put_time(localt, "%m/%d/%Y %I:%M:%S %p");
-            return os;
-        }
-};
+    /**
+     * @brief A struct to pretty print a date time
+     *
+     * This struct is used to pretty print a date time in a human readable format.
+     */
+    struct PrettyDateTime {
+            std::filesystem::file_time_type ftime;
 
-/**
- * @brief A struct to pretty print a file size
- *
- * This struct is used to pretty print a file size in a human readable format.
- */
-struct PrettySize {
-        std::uintmax_t size{};
+        private:
+            /**
+             * @brief output stream operator
+             *
+             * This function is used to output the date time in a human readable format.
+             *
+             * @param os the output stream
+             * @param pdt the pretty date time to output
+             * @return std::ostream& the output stream
+             */
+            friend std::ostream& operator<<(std::ostream& os, PrettyDateTime pdt)
+            {
+                std::time_t ttime  = to_time_t(pdt.ftime);
+                std::tm*    localt = std::localtime(&ttime);
+                os << std::put_time(localt, "%m/%d/%Y %I:%M:%S %p");
+                return os;
+            }
+    };
 
-    private:
-        /**
-         * @brief output stream operator
-         *
-         * This function is used to output the file size in a human readable format.
-         *
-         * @param os the output stream
-         * @param pdt the pretty file size to output
-         * @return std::ostream& the output stream
-         */
-        friend std::ostream& operator<<(std::ostream& os, PrettySize pfs)
-        {
-            int    o{};
-            double mantissa = static_cast<double>(pfs.size);
-            for (; mantissa >= 1024.; mantissa /= 1024., ++o)
-                ;
-            os << std::ceil(mantissa * 10.) / 10. << "BKMGTPE"[o];
-            return o ? os << "B (" << pfs.size << ')' : os;
-        }
-};
+    /**
+     * @brief A struct to pretty print a file size
+     *
+     * This struct is used to pretty print a file size in a human readable format.
+     */
+    struct PrettySize {
+            std::uintmax_t size{};
+
+        private:
+            /**
+             * @brief output stream operator
+             *
+             * This function is used to output the file size in a human readable format.
+             *
+             * @param os the output stream
+             * @param pdt the pretty file size to output
+             * @return std::ostream& the output stream
+             */
+            friend std::ostream& operator<<(std::ostream& os, PrettySize pfs)
+            {
+                static constexpr double              kUnitBase       = 1024.0;
+                static constexpr double              kRoundingFactor = 10.0;
+                static constexpr std::array<char, 7> kUnitSuffixes{'B', 'K', 'M', 'G',
+                                                                   'T', 'P', 'E'};
+
+                auto mantissa   = static_cast<double>(pfs.size);
+                int  unit_index = 0;
+                while (mantissa >= kUnitBase
+                       && unit_index < static_cast<int>(kUnitSuffixes.size() - 1)) {
+                    mantissa /= kUnitBase;
+                    ++unit_index;
+                }
+                os << std::ceil(mantissa * kRoundingFactor) / kRoundingFactor
+                   << kUnitSuffixes.at(static_cast<std::size_t>(unit_index));
+                return (unit_index != 0) ? os << "B (" << pfs.size << ')' : os;
+            }
+    };
+
+} // namespace
 
 /**
  * @brief Get the directories in the PATH environment variable
@@ -112,7 +129,9 @@ std::vector<std::filesystem::path> get_path_dirs()
 
     // Make sure we check the current directory
     // In powershell the local directory is NOT searched. Don't know why.
-    if (!is_powershell()) { path_dirs.push_back("./"); }
+    if (!is_powershell()) {
+        path_dirs.emplace_back("./");
+    }
 
     // Get the PATH from the environment
     const char* path = std::getenv("PATH");
@@ -123,7 +142,9 @@ std::vector<std::filesystem::path> get_path_dirs()
 
     for (const auto& token: tokens) {
         // Check if the token is a directory reduce checking bad paths.
-        if (std::filesystem::is_directory(token)) { path_dirs.push_back(token); }
+        if (std::filesystem::is_directory(token)) {
+            path_dirs.emplace_back(token);
+        }
     }
 
     return path_dirs;
@@ -168,7 +189,7 @@ std::vector<std::filesystem::path> files_to_check(const std::string& filename)
     std::vector<std::filesystem::path> files;
     std::filesystem::path              path(filename);
 
-    std::vector<std::string> extensions = get_path_exts();
+    const std::vector<std::string> extensions = get_path_exts();
     for (const auto& ext: extensions) { files.push_back(path.replace_extension(ext)); }
 
     return files;
@@ -181,18 +202,18 @@ std::vector<std::filesystem::path> files_to_check(const std::string& filename)
  * @param show_info Show the size and date of the file
  * @return std::vector<std::string> A vector of strings containing all matching files
  */
-std::vector<std::string> search_path(const std::string& filename,
-                                     bool               show_info = false)
+std::vector<std::string> search_path(const std::string& filename, bool show_info)
 {
     std::vector<std::string> found_matches;
 
-    std::vector<std::filesystem::path> check_list = files_to_check(filename);
-    std::vector<std::filesystem::path> path_dirs  = get_path_dirs();
+    const std::vector<std::filesystem::path> check_list = files_to_check(filename);
+    const std::vector<std::filesystem::path> path_dirs  = get_path_dirs();
     for (const auto& _path: path_dirs) {
         for (const auto& check: check_list) {
             std::filesystem::path findme = _path / check;
             std::error_code       ec; // Using noexcept versions but ignoring the ec.
-            std::filesystem::file_status fstatus = std::filesystem::status(findme, ec);
+            const std::filesystem::file_status fstatus
+              = std::filesystem::status(findme, ec);
             std::stringstream            ss;
             if (std::filesystem::is_regular_file(fstatus)
                 || std::filesystem::is_symlink(fstatus)) {

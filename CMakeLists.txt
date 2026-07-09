@@ -1,5 +1,9 @@
 cmake_minimum_required(VERSION 3.24)
 
+if(POLICY CMP0167)
+    cmake_policy(SET CMP0167 NEW)
+endif()
+
 list(APPEND CMAKE_MODULE_PATH
     "${CMAKE_CURRENT_SOURCE_DIR}/cmake"
 ) 
@@ -7,7 +11,7 @@ list(APPEND CMAKE_MODULE_PATH
 include( NoInSourceBuilds )
 
 project(which
-    VERSION 4.2.0
+    VERSION 4.2.1
     LANGUAGES CXX
 )
 set(CMAKE_CXX_STANDARD 17)
@@ -30,9 +34,13 @@ option( VERSION_INCLUDE_BUILDID
 
 set (CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
+add_compile_definitions(_CRT_SECURE_NO_DEPRECATION _CRT_SECURE_NO_WARNINGS)
 if (MSVC)
     add_compile_options("$<$<COMPILE_LANGUAGE:C,CXX>:/W4>")
-    add_compile_definitions(_CRT_SECURE_NO_DEPRECATION _CRT_SECURE_NO_WARNINGS)
+elseif (CMAKE_CXX_COMPILER_ID MATCHES "Clang|GNU")
+    add_compile_options(
+        "$<$<COMPILE_LANGUAGE:C,CXX>:-Wall;-Wextra;-Wpedantic;-Wshadow;-Wconversion;-Wsign-conversion;-Wnon-virtual-dtor;-Woverloaded-virtual;-Wnull-dereference;-Wdouble-promotion;-Wformat=2;-Wimplicit-fallthrough>"
+    )
 endif()
 
 # Configure the version information
@@ -64,16 +72,16 @@ include_directories(
         ${PROJECT_SRC_DIR}
         ${PROJECT_SRC_DIR}/include
         ${CMAKE_BINARY_DIR}
-        ${Boost_INCLUDE_DIRS}
 )
 
 
 add_library( whichlib STATIC ${lib-src} )
+target_link_libraries(whichlib PUBLIC Boost::headers)
 add_executable(which ${main-src})
 
 target_link_libraries(which PUBLIC
     whichlib
-    ${Boost_LIBRARIES}
+    Boost::headers
 )
 
 add_custom_command( TARGET which

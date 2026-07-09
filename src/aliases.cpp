@@ -5,16 +5,17 @@
  *  see https://opensource.org/licenses/MIT
  ******************************************************************************/
 
-#include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/classification.hpp>
 #include <boost/algorithm/string/predicate.hpp>
 #include <boost/algorithm/string/split.hpp>
-#include <cstdio>
+#include <boost/algorithm/string/trim.hpp>
 #include <iostream>
 #include <regex>
+#include <stdexcept>
 #include <string>
 #include <vector>
 
+#include "aliases.h"
 #include "powershell.h"
 #include "shell.h"
 
@@ -31,7 +32,7 @@ std::vector<std::string> search_aliases(const std::string& command)
     std::string command_output;
     try {
         if (is_powershell()) {
-            std::string alias_command
+            const std::string alias_command
                 = "powershell.exe -Command \"Get-Alias | Where-Object Name -EQ '\""
                   + command + "'";
             command_output = exec(alias_command.c_str());
@@ -50,15 +51,19 @@ std::vector<std::string> search_aliases(const std::string& command)
     boost::split(tokens, command_output, boost::is_any_of("\n"));
 
     const std::regex pattern{"(\\S+)=(.*)"};
-    const std::regex pattern_ps{"Alias\\s*?(\\S+)\\s+->\\s+(.*?)$"};
+    const std::regex pattern_ps{R"(Alias\s*?(\S+)\s+->\s+(.*?)$)"};
     std::regex       search_pattern = pattern;
     if (is_powershell()) { search_pattern = pattern_ps; }
 
     std::smatch matches;
     for (const auto& token: tokens) {
         if (std::regex_match(token, matches, search_pattern)) {
+            // NOLINTBEGIN(cppcoreguidelines-pro-bounds-avoid-unchecked-container-access)
+            // regex_match already succeeded above and search_pattern always has
+            // exactly 2 capture groups, so indices 1 and 2 are guaranteed present.
             const std::string key   = matches[1];
             const std::string value = matches[2];
+            // NOLINTEND(cppcoreguidelines-pro-bounds-avoid-unchecked-container-access)
             if (boost::iequals(key, command)) {
                 std::string message;
                 message = "`" + command + "` is an alias for `"

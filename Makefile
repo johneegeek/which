@@ -22,7 +22,8 @@ test:
 
 .PHONY: check
 check:
-	-clang-tidy -p build src/* 
+	cmake -G Ninja -B build-lint
+	-clang-tidy -p build-lint src/*.cpp 
 	-cppcheck --enable=all --suppress=missingIncludeSystem --suppress=*:cxxopts* -I src/include src/*.cpp
 	-lizard --modified --exclude "*/cxxopts.hpp" src
 
@@ -30,4 +31,5 @@ check:
 clean:
 	-@rm -rf build
 	-@rm -rf build-vscode
+	-@rm -rf build-lint
 	-@rm -f which.exe

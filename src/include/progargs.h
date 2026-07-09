@@ -10,9 +10,11 @@
 
 #include "cxxopts.hpp"
 
-#include <memory>
-
+// NOLINTBEGIN(cppcoreguidelines-avoid-c-arrays,modernize-avoid-c-arrays)
+// argv mirrors main()'s required signature; it cannot be changed to a
+// container type at this boundary. See progargs.cpp for the definition.
 extern cxxopts::ParseResult parse_args(int argc, char* argv[]);
+// NOLINTEND(cppcoreguidelines-avoid-c-arrays,modernize-avoid-c-arrays)
 extern void                 show_usage();
 
 #endif /* WHICH_PROGARGS_H_ */

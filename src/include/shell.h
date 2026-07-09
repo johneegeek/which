@@ -8,6 +8,8 @@
 #ifndef SHELL_H_
 #define SHELL_H_
 
+#include <string>
+
 extern std::string exec(const char* cmd);
 
 #endif // SHELL_H_

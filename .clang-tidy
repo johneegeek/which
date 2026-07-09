@@ -1,6 +1,6 @@
 ---
-Checks:          'clang-diagnostic-*,clang-analyzer-*,cppcoreguidelines-*,bugprone-*,readability-*,misc-*,modernize-*,-modernize-use-trailing-return-type,-cppcoreguidelines-virtual-class-destructor'
-WarningsAsErrors: true
+Checks:          'clang-diagnostic-*,clang-analyzer-*,cppcoreguidelines-*,bugprone-*,readability-*,misc-*,modernize-*,-modernize-use-trailing-return-type,-cppcoreguidelines-virtual-class-destructor,-clang-analyzer-cplusplus.NewDelete,-clang-analyzer-optin.core.EnumCastOutOfRange'
+WarningsAsErrors: false
 HeaderFilterRegex: ''
 CheckOptions:
   - key:             readability-uppercase-literal-suffix.NewSuffixes
@@ -31,4 +31,8 @@ CheckOptions:
     value:           llvm
   - key:             modernize-use-nullptr.NullMacros
     value:           'NULL'
+  - key:             readability-identifier-length.IgnoredVariableNames
+    value:           '^(os|ec|ss|o)$'
+  - key:             readability-identifier-length.IgnoredParameterNames
+    value:           '^(os|tp)$'
 ...

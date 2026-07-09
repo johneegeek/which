@@ -9,8 +9,6 @@
 #define POWERSHELL_H_
 
 #include <string>
-#include <windows.h>
-#include <tlhelp32.h> // This must be included after windows.h :(
 
 extern bool is_powershell();
 

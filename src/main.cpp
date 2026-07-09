@@ -19,13 +19,21 @@
 #include "progargs.h"
 #include "which.h"
 
-#include <boost/range.hpp>
+#include <boost/range/begin.hpp>
+#include <boost/range/end.hpp>
 #include <boost/range/join.hpp>
 #include <cstdlib>
+#include <exception>
 #include <iostream>
 #include <string>
 #include <vector>
 
+// The exceptions main() can theoretically propagate here are not reachable in
+// practice: cxxopts::ParseResult::operator[] only throws for a missing key,
+// which is already guarded above by prog_opts.count("cmd"); iostream failures
+// require an explicit exceptions() mask this codebase never sets. Everything
+// else that can realistically throw is handled by the try/catch below.
+// NOLINTNEXTLINE(bugprone-exception-escape)
 int main(int argc, char* argv[])
 {
     int                     return_code = 0;
@@ -39,6 +47,9 @@ int main(int argc, char* argv[])
     const bool skip_alias = static_cast<bool>(prog_opts.count("skip-aliases"));
 
     if (static_cast<bool>(prog_opts.count("cmd"))) {
+        // cxxopts::ParseResult::operator[] performs its own key lookup and throws
+        // if the key is missing; there is no unchecked raw-container access here.
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-avoid-unchecked-container-access)
         command = prog_opts["cmd"].as<std::string>();
     }
     else {
@@ -71,7 +82,7 @@ int main(int argc, char* argv[])
     // Print the first match (unless --silent   )
     if (results.empty()) { return_code = 1; }
     else if (!silent) {
-        std::cout << results[0] << std::endl;
+        std::cout << results.at(0) << std::endl;
     }
 
     if (silent) { return return_code; }
@@ -80,7 +91,7 @@ int main(int argc, char* argv[])
     if ((results.size() > 1) && all) {
         // std::cout << "\n(Also found)\n------------" << std::endl;
         for (size_t i = 1; i < results.size(); ++i) {
-            std::cout << results[i] << std::endl;
+            std::cout << results.at(i) << std::endl;
         }
         return return_code;
     }
