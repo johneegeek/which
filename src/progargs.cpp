@@ -17,10 +17,10 @@
 
 enum { kMaxArgs = 32 }; // Maximum number of arguments. Way more than we need.
 
-void show_version()
+static void show_version()
 {
     std::cout << "which (" << WHICH_VERSION << ") for Windows. ";
-    std::cout << "John Kiernan, 2024" << std::endl;
+    std::cout << "John Kiernan, 2018-2026" << std::endl;
     if (is_powershell()) { std::cout << "Running under PowerShell" << std::endl; }
     std::cout << "Built on " << BUILD_DATE << "  (git sha: " << WHICH_GIT_SHA << ") ";
     std::cout << "[" << COMPILER_INFO << "]" << std::endl;
@@ -91,6 +91,7 @@ cxxopts::ParseResult parse_args(int argc, char* argv[])
             ("h, help", "Show this help message and exit.")
             ("a, all", "List all matches, not just the first.")
             ("i, info", "Show file infomation: date/time and size.")
+            ("k, skip-aliases", "Skip checking aliases.")
             ("s, silent", "Quietly check, exit code is 0 if found, otherwise non-zero.")
             ("v, version","Show version information.")
             ("cmd","Command to locate.", cxxopts::value<std::string>())

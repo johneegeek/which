@@ -69,7 +69,7 @@ Output:
 
 **Silent mode** (exit code only):
 ```cmd
-which --silent node
+which --silent --skip-aliases node
 echo %ERRORLEVEL%
 ```
 
