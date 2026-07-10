@@ -6,11 +6,13 @@
  ******************************************************************************/
 
 #include <boost/algorithm/string/case_conv.hpp>
+#include <optional>
 #include <set>
 #include <string>
 #include <vector>
 
 #include "internal_cmds.h"
+#include "match_result.h"
 #include "powershell.h"
 
 namespace {
@@ -43,23 +45,24 @@ bool is_internal_command(const std::string& command)
  * so the best we can do is to check if the command is in the list of known built-ins.
  *
  * @param command Command to search for.
- * @return std::vector<std::string> Returning it as a vector of strings to make merging
- * easier.
+ * @return std::vector<MatchResult> Returning it as a vector to make merging easier.
+ * An internal command is never a real file, so `path` is always unset on the
+ * returned entries.
  */
-std::vector<std::string> search_internal_commands(const std::string& command)
+std::vector<MatchResult> search_internal_commands(const std::string& command)
 {
-    std::vector<std::string> result;
+    std::vector<MatchResult> result;
 
     if (is_powershell()) {
         const std::string matched = powershell_cmd_match(command);
-        if (!matched.empty()) { result.push_back(matched); }
+        if (!matched.empty()) { result.push_back(MatchResult{matched, std::nullopt}); }
         return result;
     }
 
     if (is_internal_command(command)) {
         const std::string cmdstr = boost::algorithm::to_upper_copy(command);
         const std::string message = cmdstr + " is an internal Windows command. (CMD.EXE)";
-        result.push_back(message);
+        result.push_back(MatchResult{message, std::nullopt});
     }
 
     return result;

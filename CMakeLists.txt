@@ -11,7 +11,7 @@ list(APPEND CMAKE_MODULE_PATH
 include( NoInSourceBuilds )
 
 project(which
-    VERSION 4.2.1
+    VERSION 4.3.0
     LANGUAGES CXX
 )
 set(CMAKE_CXX_STANDARD 17)

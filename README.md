@@ -75,6 +75,17 @@ echo %ERRORLEVEL%
 
 Returns `0` if found, `1` if not found. Useful in scripts.
 
+**Edit the first match:**
+```cmd
+which --edit deploy.py
+```
+
+If `%EDITOR%` is set and the first match is a real file with an editable
+extension (`.py`, `.js`, `.ps1`, `.cfg`, etc.), it's opened in `%EDITOR%`.
+Aliases, internal commands, and non-editable files (like `.exe`) are just
+printed as usual, nothing is launched. If `%EDITOR%` isn't set, `--edit` is
+ignored and `which` behaves normally.
+
 **Version information:**
 ```cmd
 which --version

@@ -11,7 +11,9 @@
 #include <string>
 #include <vector>
 
-extern std::vector<std::string> search_internal_commands(const std::string& command);
+#include "match_result.h"
+
+extern std::vector<MatchResult> search_internal_commands(const std::string& command);
 
 extern bool is_internal_command(const std::string& command);
 

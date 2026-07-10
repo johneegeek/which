@@ -10,12 +10,14 @@
 #include <boost/algorithm/string/split.hpp>
 #include <boost/algorithm/string/trim.hpp>
 #include <iostream>
+#include <optional>
 #include <regex>
 #include <stdexcept>
 #include <string>
 #include <vector>
 
 #include "aliases.h"
+#include "match_result.h"
 #include "powershell.h"
 #include "shell.h"
 
@@ -23,11 +25,13 @@
  * @brief Search aliases (DOSKEY) for the given command.
  *
  * @param command Name of the command to search for.
- * @return std::vector<std::string> List of all matches in the aliases list
+ * @return std::vector<MatchResult> List of all matches in the aliases list. An
+ * alias is never a real file, so `path` is always unset on the returned
+ * entries.
  */
-std::vector<std::string> search_aliases(const std::string& command)
+std::vector<MatchResult> search_aliases(const std::string& command)
 {
-    std::vector<std::string> result;
+    std::vector<MatchResult> result;
 
     std::string command_output;
     try {
@@ -68,7 +72,7 @@ std::vector<std::string> search_aliases(const std::string& command)
                 std::string message;
                 message = "`" + command + "` is an alias for `"
                           + boost::trim_copy(value) + "`";
-                result.push_back(message);
+                result.push_back(MatchResult{message, std::nullopt});
             }
         }
     }

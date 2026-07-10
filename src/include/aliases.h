@@ -11,6 +11,8 @@
 #include <string>
 #include <vector>
 
-extern std::vector<std::string> search_aliases(const std::string& command);
+#include "match_result.h"
+
+extern std::vector<MatchResult> search_aliases(const std::string& command);
 
 #endif /* WHICH_ALIASES_H_ */

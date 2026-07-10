@@ -17,11 +17,14 @@
 #include <filesystem>
 #include <iomanip>
 #include <iostream>
+#include <optional>
+#include <set>
 #include <sstream>
 #include <string>
 #include <system_error>
 #include <vector>
 
+#include "match_result.h"
 #include "powershell.h"
 #include "which.h"
 
@@ -113,6 +116,24 @@ namespace {
             }
     };
 
+    /**
+     * Get the set of file extensions (lowercase, with leading dot) that --edit
+     * considers safe/sensible to hand to %EDITOR%. This is deliberately just
+     * text/script/source files, not executables, archives, etc.
+     *
+     * @return const std::set<std::string>&
+     */
+    const std::set<std::string>& editable_extensions()
+    {
+        static const std::set<std::string> extensions
+            = {".py",  ".pyw",  ".bat",  ".cmd",  ".js",   ".vbs",  ".vbe",  ".jse",
+               ".ps1", ".psm1", ".psd1", ".txt",  ".ini",  ".cfg",  ".conf", ".json",
+               ".xml", ".yaml", ".yml",  ".md",   ".html", ".htm",  ".css",  ".c",
+               ".h",   ".cpp",  ".hpp",  ".cs",   ".java", ".sh",   ".ts",   ".sql",
+               ".toml", ".log"};
+        return extensions;
+    }
+
 } // namespace
 
 /**
@@ -196,15 +217,29 @@ std::vector<std::filesystem::path> files_to_check(const std::string& filename)
 }
 
 /**
+ * @brief Check if a file is one we're willing to hand to %EDITOR% for --edit.
+ *
+ * @param file Path to check.
+ * @return bool True if the file's extension is considered editable.
+ */
+bool is_editable_file(const std::filesystem::path& file)
+{
+    std::string ext = file.extension().string();
+    boost::algorithm::to_lower(ext);
+    return editable_extensions().find(ext) != editable_extensions().end();
+}
+
+/**
  * @brief Search for a file in the PATH environment variable
  *
  * @param filename Name of the file to search for
  * @param show_info Show the size and date of the file
- * @return std::vector<std::string> A vector of strings containing all matching files
+ * @return std::vector<MatchResult> A vector of matches, each carrying the real
+ * filesystem path when one is known.
  */
-std::vector<std::string> search_path(const std::string& filename, bool show_info)
+std::vector<MatchResult> search_path(const std::string& filename, bool show_info)
 {
-    std::vector<std::string> found_matches;
+    std::vector<MatchResult> found_matches;
 
     const std::vector<std::filesystem::path> check_list = files_to_check(filename);
     const std::vector<std::filesystem::path> path_dirs  = get_path_dirs();
@@ -223,7 +258,7 @@ std::vector<std::string> search_path(const std::string& filename, bool show_info
                        << "\t ";
                 }
                 ss << findme.make_preferred().string();
-                found_matches.push_back(ss.str());
+                found_matches.push_back(MatchResult{ss.str(), findme});
             }
             else if (fstatus.type() == std::filesystem::file_type::none) {
                 // This is the dubious case where it's a weird Microsoft link to an
@@ -234,7 +269,9 @@ std::vector<std::string> search_path(const std::string& filename, bool show_info
                     ss << "@";
                 }
                 ss << findme.make_preferred().string();
-                found_matches.push_back(ss.str());
+                // We can't reliably treat these App Execution Alias entries as a
+                // normal file, so leave the path unset - --edit will skip them.
+                found_matches.push_back(MatchResult{ss.str(), std::nullopt});
             }
         }
     }
